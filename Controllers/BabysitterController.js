@@ -94,7 +94,13 @@ exports.getBabysitterById = async (req, res) => {
 exports.updateAvailability = async (req, res) => {
   try {
     const { disponibilite } = req.body;
-    console.log('Updating availability:', { userId: req.user._id, disponibilite });
+    
+    if (typeof disponibilite !== 'boolean') {
+      return res.status(400).json({
+        success: false,
+        message: "Availability must be a boolean value"
+      });
+    }
 
     const babysitter = await Babysitter.findByIdAndUpdate(
       req.user._id,
@@ -111,10 +117,11 @@ exports.updateAvailability = async (req, res) => {
 
     res.status(200).json({
       success: true,
+      message: `Availability status updated to ${disponibilite ? 'available' : 'unavailable'}`,
       data: babysitter
     });
   } catch (error) {
-    console.error('Update availability error:', error);
+    console.error('Error updating availability:', error);
     res.status(500).json({
       success: false,
       message: "Error updating availability",
